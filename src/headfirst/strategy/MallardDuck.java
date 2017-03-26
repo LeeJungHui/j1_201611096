@@ -5,6 +5,7 @@ public class MallardDuck extends Duck
   public MallardDuck()
   {
     fb = new FlyWithWings();
+    qb = new Quack();
   }
   public void display()
   {
