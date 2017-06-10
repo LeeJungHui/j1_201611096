@@ -3,70 +3,88 @@ import java.awt.*;
 import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.event.*;
+import java.util.List;
+import java.util.Iterator;
 
 public class AddressGUI extends JFrame implements ActionListener
 {
+  PersonDAOImpl personDAOImpl = new PersonDAOImpl();
+  PersonVO person = new PersonVO();
+  int i=0;
   AddressData addressData = new AddressData();
   Address address;
   JPanel panel,panel2;
-  JLabel name,phoneNum;
-  JTextField nameT,phoneNumT;
-  JButton add,sort,data;
+  JLabel name,phoneNum,id;
+  JTextField nameT,phoneNumT,idT;
+  JButton add,delete,data,modify;
   public AddressGUI()
   {
-    panel = new JPanel(new GridLayout(2,2));
-    panel2 = new JPanel(new GridLayout(1,3));
+    panel = new JPanel(new GridLayout(3,2));
+    panel2 = new JPanel(new GridLayout(1,4));
     getContentPane().add(panel,BorderLayout.NORTH);
     getContentPane().add(panel2,BorderLayout.SOUTH);
     setTitle("Address");
     name = new JLabel("Name");
     phoneNum = new JLabel("PhoneNumber");
+    id = new JLabel("Id");
+    idT = new JTextField(20);
     nameT = new JTextField(20);
     phoneNumT = new JTextField(20);
     add = new JButton("Add");
-    sort = new JButton("Sort");
+    delete = new JButton("Delete(id)");
     data = new JButton("Data");
+    modify = new JButton("Modify");
     add.addActionListener(this);
     data.addActionListener(this);
-    sort.addActionListener(this);
+    delete.addActionListener(this);
+    modify.addActionListener(this);
     panel.add(name);
     panel.add(nameT);
     panel.add(phoneNum);
     panel.add(phoneNumT);
+    panel.add(id);
+    panel.add(idT);
     panel2.add(add);
+    panel2.add(delete);
+    panel2.add(modify);
     panel2.add(data);
-    panel2.add(sort);
 
   }
   public void actionPerformed(ActionEvent e){
     JButton b=(JButton)e.getSource();
     String cmd=e.getActionCommand();
     if (cmd.equals("Add")){
-      Address ad = new Address(addressData);
-      addressData.setMeasurements(nameT.getText(),phoneNumT.getText());
-      System.out.println("Regist Data!");
-      System.out.println("Name : "+nameT.getText()+"\nPhoneNumber : "+phoneNumT.getText());
-      nameT.setText("");
-      phoneNumT.setText("");
+      String setName = nameT.getText();
+      String setPhone = phoneNumT.getText();
+      person.setId(++i);
+      person.setName(setName);
+      person.setAddress(setPhone);
+      personDAOImpl.insert(person);
     } 
-    else if (cmd.equals("Sort"))
+    else if (cmd.equals("Delete(id)"))
     {
-      System.out.println("Start Sorting of data..");
+      int setId= Integer.parseInt(idT.getText());
+      System.out.println(setId);
+      personDAOImpl.delete(setId);
     }
     else if (cmd.equals("Data"))
     {
-      System.out.println("--------AddressList-------- int i = "+addressData.observers.size());
-      for(int i=0; i<addressData.observers.size();i++)
-      {
-        System.out.println("Name : "+addressData.observers.get(i)/*.getName()+"PhoneNumber : "+addressData.observers.get(i).getPhone()*/);
+      List persons=personDAOImpl.findAll();
+      Iterator iter=persons.iterator();
+      while(iter.hasNext()) {
+          person=(PersonVO)iter.next();
+          System.out.println(person.toString());
       }
     }
-  }
-  public static void main(String[] args)
-  {
-    AddressGUI ad = new AddressGUI();
-    ad.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    ad.pack();
-    ad.setVisible(true);
+    else if (cmd.equals("Modify"))
+    {
+        String setName = nameT.getText();
+        String setPhone = phoneNumT.getText();
+        int setId = Integer.parseInt(idT.getText()+0);
+        person.setId(setId);
+        person.setName(setName);
+        person.setAddress(setPhone);
+        personDAOImpl.update(person);
+    }
   }
 }
